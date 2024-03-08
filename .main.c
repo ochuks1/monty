@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include "monty.h"
 
 /**
@@ -8,10 +10,9 @@
   */
 int main(int argc, char *argv[])
 {
-	char *content;
+	char *content = NULL;
 	FILE *file;
-	size_t size = 0;
-	ssize_t read_line = 1;
+	ssize_t read_line;
 	stack_t *stack = NULL;
 	unsigned int counter = 0;
 
@@ -27,16 +28,26 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "Error: Can't open file %s\n", argv[1]);
 		exit(EXIT_FAILURE);
 	}
-	while (read_line > 0)
+	while ((read_line > clean_line(content)) != -1)
 	{
-		content = NULL;
-		read_line = getline(&content, &size, file);
-		bus.content = content;
+		if (read_line == 0)
+	{
+		continue;
+	}
+		 content = malloc(read_line + 1);
+        if (!content) 
+	{
+            fprintf(stderr, "Error: Unable to allocate memory\n");
+            exit(EXIT_FAILURE);
+	}
+	 if (fgets(content, read_line + 1, file) == NULL) 
+	 {
+            fprintf(stderr, "Error: Unable to read line from file\n");
+            free(content);
+            exit(EXIT_FAILURE);
+	 }
 		counter++;
-		if (read_line > 0)
-		{
-			execute(content, &stack, counter, file);
-		}
+		execute(content, &stack, counter, file);
 		free(content);
 	}
 	free_stack(stack);
